@@ -1,0 +1,80 @@
+- name: "Playbook for Backend Configuration"
+  hosts: backend
+  become: true
+  vars:
+    login_user: root
+    login_host: db.harshadevops.site
+    login_password: ExpenseApp1
+    login_db: transactions
+  tasks:
+    - name: "Disable NodeJS Default Version"
+      ansible.builtin.command: dnf module disable nodejs -y
+
+    - name: "Enable NodeJS Version 20"
+      ansible.builtin.command: dnf module enable nodejs:20 -y
+
+    - name: "Install NodeJS and MySQL"
+      ansible.builtin.dnf:
+        name: "{{item}}"
+        state: installed
+        enabled: true
+      loop:
+        - nodejs
+        - mysql
+
+    - name: "Create Expense User"
+      ansible.builtin.user:
+        name: expense
+
+    - name: "Create /app directory"
+      ansible.builtin.file:
+        path: /app
+        state: directory
+
+    - name: "Download Backend Artifact"
+      ansible.builtin.get_url:
+        url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+        dest: /tmp/backend.zip
+
+    - name: "Extract Backend Artifact to /app"
+      ansible.builtin.unarchive:
+        src: /tmp/backend.zip
+        dest: /app
+        remote_src: true
+
+    - name: "Install npm Dependencies"
+      ansible.builtin.command: npm install
+      args:
+        chdir: /app
+
+    - name: "Copy Backend Systemd Service file"
+      ansible.builtin.copy:
+        src: backend.service
+        dest: /etc/systemd/system/backend.service
+
+    - name: "Start and Enable Backend Service"
+      ansible.builtin.systemd_service:
+        state: started
+        name: backend
+        enabled: true
+        daemon_reload: true
+
+    - name: "Install Python MySQL Dependencies"
+      ansible.builtin.pip:
+        name:
+          - PyMySQL
+          - cryptography
+        executable: pip3.9
+
+    - name: "Import MySQL Schema to DB Server"
+      community.mysql.mysql_db:
+        name: all
+        login_user: "{{login_user}}"
+        login_host: "{{login_host}}"
+        login_password: "{{login_password}}"
+        state: import
+
+    - name: "Restart MySQL Service"
+      ansible.builtin.dnf:
+        name: mysql
+        state: restarted
