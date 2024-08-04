@@ -17,7 +17,6 @@
       ansible.builtin.dnf:
         name: "{{item}}"
         state: installed
-        enabled: true
       loop:
         - nodejs
         - mysql
