@@ -13,8 +13,8 @@
         state: installed
 
     - name: "Start and Enable MySQL Server"
-      ansible.builtin.dnf:
-        name: mysql-server
+      ansible.builtin.service:
+        name: mysql
         state: started
         enabled: true
 
@@ -25,12 +25,13 @@
           - PyMySQL
         executable: pip3.9 # check Python Version of Ansible
 
-    - name: "Test MySQL Server with Root Password"
+    - name: "Test MySQL Server Connection with Root Password"
       community.mysql.mysql_info:
         login_user: "{{login_user}}"
         login_host: "{{login_host}}"
         login_password: "{{login_password}}"
         login_db: "{{login_db}}"
+        filter: version
       register: mysql_connection_output
       ignore_errors: true
 
