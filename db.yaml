@@ -1,0 +1,43 @@
+- name: "Playbook for DB Configuration"
+  hosts: db
+  become: true
+  vars:
+    login_user: root
+    login_host: "db.harshadevops.site"
+    login_password: ExpenseApp1
+    login_db: transactions
+  tasks:
+    - name: "Install MySQL Server"
+      ansible.builtin.dnf:
+        name: mysql-server
+        state: installed
+
+    - name: "Start and Enable MySQL Server"
+      ansible.builtin.dnf:
+        name: mysql-server
+        state: started
+        enabled: true
+
+    - name: "Install Python Dependencies"
+      ansible.builtin.pip:
+        name:
+          - cryptography
+          - PyMySQL
+        executable: pip3.9 # check Python Version of Ansible
+
+    - name: "Test MySQL Server with Root Password"
+      community.mysql.mysql_info:
+        login_user: "{{login_user}}"
+        login_host: "{{login_host}}"
+        login_password: "{{login_password}}"
+        login_db: "{{login_db}}"
+      register: mysql_connection_output
+      ignore_errors: true
+
+    - name: "Display MySQL Test Connection Output"
+      community.builtin.debug:
+        msg: "MySQL Output: {{mysql_connection_output}}"
+
+    - name: "Setup MySQL Root Password"
+      ansible.builtin.command: "mysql_secure_installation --set-root-pass {{login_password}}"
+      when: mysql_connection_output.failed is true
