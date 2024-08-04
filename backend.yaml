@@ -75,6 +75,6 @@
         target: /app/schema/backend.sql
 
     - name: "Restart MySQL Service"
-      ansible.builtin.dnf:
-        name: mysql
+      ansible.builtin.systemd_service:
         state: restarted
+        name: mysql
