@@ -1,0 +1,46 @@
+- name: "Playbook for Frontend Configuration"
+  become: true
+  hosts: frontend
+  tasks:
+    - name: "Install nginx"
+      ansible.builtin.dnf:
+        name: nginx
+        state: installed
+
+    - name: "Start and Enable nginx"
+      ansible.builtin.systemd_service:
+        state: started
+        name: nginx
+        enabled: true
+
+    - name: "Delete nginx html directory"
+      ansible.builtin.file:
+        path: /usr/share/nginx/html/
+        state: absent
+        recurse: true
+
+    - name: "Create nginx html directory"
+      ansible.builtin.file:
+        path: /usr/share/nginx/html/
+        state: directory
+
+    - name: "Download Frontend Artifact"
+      ansible.builtin.get_url:
+        url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+        dest: /tmp/frontend.zip
+
+    - name: "Extract Frontend Artifact to /usr/share/nginx/html"
+      ansible.builtin.unarchive:
+        src: /tmp/frontend.zip
+        dest: /usr/share/nginx/html
+        remote_src: true
+
+    - name: "Copy Backend Config file"
+      ansible.builtin.copy:
+        src: expense.conf
+        dest: /etc/nginx/default.d/expense.conf
+
+    - name: "Restart nginx"
+      ansible.builtin.systemd_service:
+        state: restarted
+        name: nginx
