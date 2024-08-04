@@ -36,7 +36,7 @@
       ignore_errors: true
 
     - name: "Display MySQL Test Connection Output"
-      community.builtin.debug:
+      ansible.builtin.debug:
         msg: "MySQL Output: {{mysql_connection_output}}"
 
     - name: "Setup MySQL Root Password"
