@@ -37,6 +37,13 @@
     enabled: true
     daemon_reload: true
 
+- name: "Install Python MySQL Dependencies"
+  ansible.builtin.pip:
+    name:
+      - PyMySQL
+      - cryptography
+    executable: pip3.9
+
 - name: "Import schema to MySQL Database"
   community.mysql.mysql_db:
     name: all
