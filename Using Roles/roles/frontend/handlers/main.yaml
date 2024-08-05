@@ -1,0 +1,4 @@
+- name: "Restart nginx"
+  ansible.builtin.dnf:
+    name: nginx
+    state: restarted

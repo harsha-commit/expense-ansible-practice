@@ -1,0 +1,7 @@
+- name: "Playbook for {{ component }} Configuration"
+  hosts: "{{ component }}"
+  become: true
+  vars_files:
+    - credentials.yaml
+  roles:
+    - "{{ component }}"

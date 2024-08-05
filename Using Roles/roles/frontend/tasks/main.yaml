@@ -1,0 +1,21 @@
+- name: "Install nginx"
+  ansible.builtin.dnf:
+    name: nginx
+    state: installed
+
+- name: "Start and Enable nginx"
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: "Run Common Deployment Processes"
+  ansible.builtin.import_role:
+    name: common
+
+- name: "Copy Expense Configuration"
+  ansible.builtin.template:
+    src: expense.conf.j2
+    dest: /etc/nginx/default.d/expense.conf
+  notify:
+    - "Restart nginx"

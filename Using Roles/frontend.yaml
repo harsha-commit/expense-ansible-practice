@@ -1,0 +1,5 @@
+- name: "Playbook for Frontend Configuration"
+  hosts: frontend
+  become: true
+  roles:
+    - frontend

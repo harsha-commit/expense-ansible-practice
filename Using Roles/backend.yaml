@@ -1,0 +1,5 @@
+- name: "Playbook for backend Configuration"
+  hosts: backend
+  become: true
+  roles:
+    - backend

@@ -1,0 +1,5 @@
+- name: "Playbook for db Configuration"
+  hosts: db
+  become: true
+  roles:
+    - db
