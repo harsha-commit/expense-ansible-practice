@@ -1,4 +1,4 @@
 - name: "Restart nginx"
-  ansible.builtin.dnf:
+  ansible.builtin.systemd_service:
     name: nginx
     state: restarted
